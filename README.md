@@ -54,8 +54,8 @@ is the **Google Gemini API** (free tier available), for which **you provide your
 |------------------|----------------------------------------------|
 | Frontend         | React 18 + Vite, served by nginx             |
 | Backend / API    | Python 3.11, FastAPI, Uvicorn                |
-| RAG / LLM        | LangChain + Google Gemini (`gemini-1.5-flash`)|
-| Embeddings       | Gemini `text-embedding-004`                  |
+| RAG / LLM        | LangChain + Google Gemini (`gemini-2.0-flash`)|
+| Embeddings       | Gemini `gemini-embedding-001`                |
 | Vector store     | ChromaDB (embedded / persistent)             |
 | Metadata DB      | SQLite (via SQLAlchemy)                       |
 | Auth             | JWT (python-jose) + bcrypt password hashing  |
@@ -149,8 +149,8 @@ All configuration is done through the `.env` file (see `.env.example`).
 |---------------------------|----------|----------------------------------|--------------------------------------------------------|
 | `GEMINI_API_KEY`          | ✅ Yes   | —                                | Your Google Gemini API key.                            |
 | `SECRET_KEY`              | ✅ Yes   | —                                | JWT signing secret. Use `openssl rand -hex 32`.        |
-| `GEMINI_CHAT_MODEL`       | No       | `gemini-1.5-flash`               | Gemini model used for answering.                       |
-| `GEMINI_EMBEDDING_MODEL`  | No       | `models/text-embedding-004`      | Gemini embedding model.                                |
+| `GEMINI_CHAT_MODEL`       | No       | `gemini-2.0-flash`               | Gemini model used for answering.                       |
+| `GEMINI_EMBEDDING_MODEL`  | No       | `gemini-embedding-001`           | Gemini embedding model (do not use retired text-embedding-004). |
 | `ADMIN_USERNAME`          | No       | `admin`                          | Username of the auto-created admin.                    |
 | `ADMIN_PASSWORD`          | No       | `admin123`                       | Password of the auto-created admin (**change it!**).   |
 | `ADMIN_EMAIL`             | No       | `admin@example.com`              | Email of the auto-created admin.                       |
@@ -331,6 +331,17 @@ Interactive docs are always available at `/docs` (Swagger UI) on the backend.
 
 - **Chat returns "GEMINI_API_KEY is not set"** — set `GEMINI_API_KEY` in `.env` and
   `docker compose up -d` again.
+- **Upload fails with `404 ... is not found for API version v1beta` / `embedContent`** —
+  the configured embedding model has been retired by Google (this happened to
+  `text-embedding-004` and `embedding-001`). The app now defaults to
+  `gemini-embedding-001` and automatically falls back to any embedding model your API
+  key supports. To pin a specific one, set `GEMINI_EMBEDDING_MODEL` in `.env`. You can
+  list the models your key supports with:
+  ```python
+  import google.generativeai as genai
+  genai.configure(api_key="YOUR_KEY")
+  print([m.name for m in genai.list_models() if "embedContent" in m.supported_generation_methods])
+  ```
 - **Document stuck on `failed`** — check the error column in the Documents table; scanned
   PDFs with no embedded text won't extract (no OCR included).
 - **Can't log in after changing `.env`** — the admin is only auto-created when *no* admin

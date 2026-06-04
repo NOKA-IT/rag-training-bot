@@ -11,8 +11,12 @@ class Settings(BaseSettings):
 
     # Gemini
     GEMINI_API_KEY: str = ""
-    GEMINI_CHAT_MODEL: str = "gemini-1.5-flash"
-    GEMINI_EMBEDDING_MODEL: str = "models/text-embedding-004"
+    GEMINI_CHAT_MODEL: str = "gemini-2.0-flash"
+    # gemini-embedding-001 is the current GA text-embedding model. The older
+    # "text-embedding-004" / "embedding-001" models were retired and now return
+    # 404 from the API. The model name is normalized (the "models/" prefix is
+    # added automatically by the SDK if omitted).
+    GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     # Storage paths
     DATA_DIR: str = "/data"
