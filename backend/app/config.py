@@ -14,8 +14,10 @@ class Settings(BaseSettings):
     GEMINI_CHAT_MODEL: str = "gemini-2.0-flash"
     # gemini-embedding-001 is the current GA text-embedding model. The older
     # "text-embedding-004" / "embedding-001" models were retired and now return
-    # 404 from the API. The model name is normalized (the "models/" prefix is
-    # added automatically by the SDK if omitted).
+    # 404 from the API. NOTE: the google-generativeai SDK requires a fully
+    # qualified name starting with "models/"; the embeddings service adds that
+    # prefix automatically, so a bare id here is fine. You may also set the
+    # fully qualified form "models/gemini-embedding-001".
     GEMINI_EMBEDDING_MODEL: str = "gemini-embedding-001"
 
     # Storage paths
